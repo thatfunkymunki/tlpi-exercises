@@ -30,15 +30,10 @@ int main (int argc, char** argv){
     }
 
   }
-  if(optind >= argc){
+  if(optind >= argc||argc<2){
     usage();
   }
-
   
-  
-  if(argc<2){
-    usage();
-  }
 
   int fd = open(argv[optind], O_WRONLY|O_CREAT | (append ? O_APPEND : O_TRUNC), S_IRUSR|S_IWUSR);
   if(fd == -1){
