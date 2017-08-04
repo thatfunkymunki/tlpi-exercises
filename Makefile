@@ -2,7 +2,7 @@ include ../Makefile.inc
 
 GEN_EXE = 
 
-LINUX_EXE = tee test
+LINUX_EXE = tee test cp
 
 EXE = ${GEN_EXE} ${LINUX_EXE}
 

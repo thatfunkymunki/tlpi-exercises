@@ -1,4 +1,4 @@
-/*
+/* EXERCISE 4-1
  * The tee command reads its standard input until end-of-file,
  * writing a copy of the input to the standard output and to the file
  * named in its command-line argument. (We show an example of the use
