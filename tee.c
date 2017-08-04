@@ -1,5 +1,5 @@
 /*
- * The tee command reads its stanxard input until end-of-file,
+ * The tee command reads its standard input until end-of-file,
  * writing a copy of the input to the standard output and to the file
  * named in its command-line argument. (We show an example of the use
  * of this command when we discuss FIFOs in Section 44.7.) Implement 
