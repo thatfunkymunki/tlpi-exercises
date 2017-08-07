@@ -2,6 +2,8 @@
 *
 #except c files
 !*.c
+#and .ans files
+!*.ans
 #and .gitignore/makefile
 !Makefile
 !.gitignore
