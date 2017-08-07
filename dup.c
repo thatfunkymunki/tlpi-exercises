@@ -22,11 +22,24 @@ int _dup(int oldfd){
   return fcntl(oldfd,F_DUPFD,0);
 }
 int _dup2(int oldfd, int newfd){
-  close(newfd);
+  if(oldfd==newfd){
+    if(fcntl(oldfd,F_GETFL)!=-1){
+      return oldfd;
+    }
+    else{
+      errno=EBADF;
+      return -1;
+    }
+  }
+
+  if(close(newfd) == -1 && errno!=EBADF){
+    return -1;
+  }
   return fcntl(oldfd,F_DUPFD,newfd);
 }
 
 int main (int argc, char** argv){
+
 
 
 }
