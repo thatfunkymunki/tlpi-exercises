@@ -7,7 +7,8 @@ LINUX_EXE = test \
 						cp\
 						append\
 						atomic_append\
-						dup
+						dup\
+						5-5
 
 EXE = ${GEN_EXE} ${LINUX_EXE}
 
