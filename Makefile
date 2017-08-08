@@ -8,7 +8,8 @@ LINUX_EXE = test \
 						append\
 						atomic_append\
 						dup\
-						5-5
+						5-5\
+						readvwritev
 
 EXE = ${GEN_EXE} ${LINUX_EXE}
 
