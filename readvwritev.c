@@ -19,7 +19,8 @@ ssize_t _readv(int fd, const struct iovec *iov, int iovcnt);
 ssize_t _writev(int fd, const struct iovec *iov, int iovcnt);
 //returns number of bytes written or -1 on error
 
-
+void test_readv(int fd, const struct iovec  *iov, int iovcnt, ssize_t readv(int, const struct iovec *, int));
+void test_writev(int fd, const struct iovec *iov, int iovcnt, ssize_t twritev(int, const struct iovec *, int));
 ssize_t _readv(int fd, const struct iovec *iov, int iovcnt){
   //find out how many bytes to read
   //allocate buffer to read that many bytes
@@ -34,7 +35,7 @@ ssize_t _readv(int fd, const struct iovec *iov, int iovcnt){
   char *buffer;
   ssize_t numread = 0;
   for(int i=0;i<iovcnt;i++){
-    printf("adding %ld to bufsize\n",iov[i].iov_len);
+  //  printf("adding %ld to bufsize\n",iov[i].iov_len);
     bufsize+=iov[i].iov_len;
   }
   buffer = malloc(bufsize);
@@ -42,13 +43,41 @@ ssize_t _readv(int fd, const struct iovec *iov, int iovcnt){
   numread = read(fd, buffer, bufsize);
 
   for(int i=0, n=0;i<iovcnt && n<numread; i++){
-    for(int j = 0; j < iov[i].iov_len && n<numread; j++){
+    for(int j = 0; j < iov[i].iov_len && n<numread; j++, n++){
       char *target = ((char*)iov[i].iov_base) + j;
       *target = buffer[n];
-      n++;
     }
   }
   return numread;
+  
+}
+ssize_t _writev(int fd, const struct iovec *iov, int iovcnt){
+  //find out how many bytes to write
+  //allocate buffer 
+  //copy iov bytes into buffer
+  //write buffer to fd
+
+  int bufsize = 0;
+  char *buffer;
+  ssize_t  numcopied = 0;
+  for(int i =0;i<iovcnt;i++){
+    //printf("adding %ld to bufsize\n",iov[i].iov_len);
+    bufsize+=iov[i].iov_len;
+
+  }
+  buffer= malloc(bufsize);
+
+  for(int i=0; i<iovcnt; i++){
+    //copy iov bytes into buffer
+    for(int j=0; j < iov[i].iov_len; j++,numcopied++){
+      if((buffer[numcopied] = *((char *)iov[i].iov_base+j) == EOF)){
+          return numcopied;
+  }
+      //printf("%ld: %x\n", numcopied, buffer[numcopied]);
+    }
+  }
+
+  return write(fd, buffer, numcopied);
   
 }
 int main(int argc, char** argv){
@@ -63,15 +92,39 @@ int main(int argc, char** argv){
   test[2].iov_len = 6;
   test[2].iov_base = malloc(6 * sizeof(char));
 
+  printf("testing our readv\n");
   int fd = open(argv[1], O_RDONLY);
 
-  int numread = _readv(fd, test, 3);
-  printf("num read: %d\n", numread);
+  test_readv(fd, test, 3, &_readv);
 
-  for(int i =0; i<3; i++){
+  printf("testing libc readv\n");
+  fd = open(argv[1], O_RDONLY);
+ 
+  test_readv(fd, test, 3, &readv);
 
-    for(int j=0;j<test[i].iov_len; j++){
-      printf("%d: %d: %x\n",i,j, *((char *)test[i].iov_base+j));
+ /* printf("testing our writev\n");
+  int fd2 = open(argv[2], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
+
+  test_writev(fd2, test, 3, &_writev);
+*/
+  printf("testing libc writev\n");
+  int fd2 = open(argv[2], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
+  test_writev(fd2, test, 3, &writev);
+
+}
+void test_writev(int fd, const struct iovec *iov, int iovcnt, ssize_t twritev(int, const struct iovec *, int)){
+  ssize_t written = twritev(fd, iov, iovcnt);
+  printf("num written: %ld\n", written);
+
+}
+void test_readv(int fd, const struct iovec *iov, int iovcnt, ssize_t treadv(int, const struct iovec *, int)){
+  ssize_t numread = treadv(fd, iov, iovcnt);
+  printf("num read: %ld\n", numread);
+
+  for(int i =0; i<iovcnt; i++){
+
+    for(int j=0;j<iov[i].iov_len; j++){
+      printf("%d: %d: %x\n",i,j, *((char *)iov[i].iov_base+j));
 
     }
   }
