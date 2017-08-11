@@ -18,7 +18,7 @@ ssize_t _readv(int fd, const struct iovec *iov, int iovcnt);
 
 ssize_t _writev(int fd, const struct iovec *iov, int iovcnt);
 //returns number of bytes written or -1 on error
-
+void usage(void);
 void test_readv(int fd, const struct iovec  *iov, int iovcnt, ssize_t readv(int, const struct iovec *, int));
 void test_writev(int fd, const struct iovec *iov, int iovcnt, ssize_t twritev(int, const struct iovec *, int));
 ssize_t _readv(int fd, const struct iovec *iov, int iovcnt){
@@ -81,6 +81,9 @@ ssize_t _writev(int fd, const struct iovec *iov, int iovcnt){
   
 }
 int main(int argc, char** argv){
+  if(argc<3){
+    usage();
+  }
   struct iovec test[3];
 
   test[0].iov_len = 5;
@@ -102,15 +105,19 @@ int main(int argc, char** argv){
  
   test_readv(fd, test, 3, &readv);
 
- /* printf("testing our writev\n");
+  printf("testing our writev\n");
   int fd2 = open(argv[2], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
 
   test_writev(fd2, test, 3, &_writev);
-*/
+
   printf("testing libc writev\n");
-  int fd2 = open(argv[2], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
+   fd2 = open(argv[2], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
   test_writev(fd2, test, 3, &writev);
 
+}
+void usage(){
+  printf("copies first 26 bytes of a file using scatter gather i/o: readvwritev <source> <dest>\n");
+  exit(-1);
 }
 void test_writev(int fd, const struct iovec *iov, int iovcnt, ssize_t twritev(int, const struct iovec *, int)){
   ssize_t written = twritev(fd, iov, iovcnt);
