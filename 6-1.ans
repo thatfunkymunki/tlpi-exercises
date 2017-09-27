@@ -1,0 +1,2 @@
+  it gets pushed onto the stack when main comes into scope, not as part of the binary itself
+

@@ -9,7 +9,10 @@ LINUX_EXE = test \
 						atomic_append\
 						dup\
 						5-5\
-						readvwritev
+						readvwritev\
+						malloc\
+						6-2\
+						setunsetenv
 
 EXE = ${GEN_EXE} ${LINUX_EXE}
 
