@@ -12,7 +12,8 @@ LINUX_EXE = test \
 						readvwritev\
 						malloc\
 						6-2\
-						setunsetenv
+						setunsetenv\
+						free_and_sbrk
 
 EXE = ${GEN_EXE} ${LINUX_EXE}
 
