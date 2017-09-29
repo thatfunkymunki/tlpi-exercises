@@ -13,7 +13,8 @@ LINUX_EXE = test \
 						malloc\
 						6-2\
 						setunsetenv\
-						free_and_sbrk
+						free_and_sbrk\
+						getpwnam
 
 EXE = ${GEN_EXE} ${LINUX_EXE}
 

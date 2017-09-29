@@ -1,0 +1,6 @@
+Exercise 8-1
+When we execute the following code, which attempts to display the usernames for two different user IDs, we find that it displays the same username twice. Why is this?
+  printf("%s %s\n", getpwuid(uid1)->pw_name, getpwuid(uid2)->pw_name);
+  
+  
+getpwuid() returns a pointer to static memory, so when you call it again, the previous struct that you are referencing gets updated as well. This code would display the name for uid2 twice.
