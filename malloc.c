@@ -8,11 +8,11 @@
 #include "tlpi_hdr.h"
 //need to create a metadata struct for each region
 
-enum status { FREE, USED };
+typedef enum st { FREE, USED } status;
 typedef struct blk{
   size_t size;
   struct blk *next;
-  enum status free;
+  status free;
 } block;
 
 void *_malloc(size_t size);
