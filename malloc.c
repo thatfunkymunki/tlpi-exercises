@@ -17,8 +17,8 @@ typedef struct blk{
 
 void *_malloc(size_t size);
 void _free(void *ptr);
-block *find_free_block(block **last, size_t size);
-block *allocate_space(block *last, size_t size);
+block *find_free_block(size_t size);
+block *allocate_space(size_t size);
 block *get_block(void *ptr);
 
 
@@ -27,16 +27,16 @@ block *get_block(void *ptr);
 block *head, *last = NULL;
 
 
-block *find_free_block(block **last, size_t size){ //important to track the ptr to the last block as well as the one you return
+block *find_free_block(size_t size){ //important to track the ptr to the last block as well as the one you return
   block *current = head;
   while(current !=NULL && !(current->free == FREE && current->size >= size)){ //continue down list until a free block of appropriate size is found
-    *last=current;
+    last=current;
     current=current->next;
   }
   return current;
 }
 
-block *allocate_space(block *last, size_t size){
+block *allocate_space(size_t size){
   block *new;
   new = sbrk(0);
   void *request = sbrk(size+sizeof(block)); //push break up enough for size and metadata
@@ -61,17 +61,17 @@ void *_malloc(size_t size){
   }
   
   if(head == NULL){ //first call to malloc in program
-    new = allocate_space(NULL,size);
+    new = allocate_space(size);
     if(new == NULL){ //couldn't allocate space
       return NULL;
     }
     head = new;
+    last = new;
   }
   else{
-    block *last = head;
-    new = find_free_block(&last, size);
+    new = find_free_block(size);
     if(new == NULL){ //couldn't find any free blocks of appropriate size
-      new = allocate_space(last,size);
+      new = allocate_space(size);
       if(new==NULL){
         return NULL;
       }
