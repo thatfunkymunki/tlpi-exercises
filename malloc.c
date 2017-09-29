@@ -2,8 +2,8 @@
  * (Advanced) Implement malloc() and free()
  *
  * Sources for reference: 
- * https://danluu.com/malloc-tutorial/ 
  * http://tharikasblogs.blogspot.com/p/how-to-write-your-own-malloc-and-free.html
+ * https://danluu.com/malloc-tutorial/ 
  */
 #include "tlpi_hdr.h"
 
@@ -39,8 +39,8 @@ struct block *find_free_block(struct block **last, size_t size){ //important to 
 struct block *allocate_space(struct block *last, size_t size){
   struct block *new;
   new = sbrk(0);
-  void *request = sbrk(size+sizeof(struct block));
-  if(request == (void *) -1){
+  void *request = sbrk(size+sizeof(struct block)); //push break up enough for size and metadata
+  if(request == (void *) -1){ //sbrk returns -1 if failed
     return NULL;
   }
   
@@ -98,10 +98,20 @@ void _free(void *ptr){
 }
 
 int main(int argc, char** argv){
+  //verify our malloc works
 
   printf("program break: %p\n", sbrk(0));
   
   char **newstr = _malloc(sizeof(char *)*8);
+  for (int i = 0; i < 8; i++){
+    newstr[i]= _malloc(sizeof(char)*8);
+    sprintf(newstr[i],"%d%d%d%d%d%d%d",i,i,i,i,i,i,i);
+  }
+  for (int i = 0; i < 8; i++){
+    printf("%p: %s\n",(void *)&newstr[i], newstr[i]);
+    _free(newstr[i]);
+  }
+  //make sure itworks again after freeing everything else
   for (int i = 0; i < 8; i++){
     newstr[i]= _malloc(sizeof(char)*8);
     sprintf(newstr[i],"%d%d%d%d%d%d%d",i,i,i,i,i,i,i);
