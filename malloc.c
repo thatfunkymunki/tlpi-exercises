@@ -27,9 +27,9 @@ struct block{
   enum status free;
 };
 
-struct block *find_free_block(struct block **last, size_t size){
+struct block *find_free_block(struct block **last, size_t size){ //important to track the ptr to the last block as well as the one you return
   struct block *current = head;
-  while(current !=NULL && !(current->free == FREE && current->size >= size)){
+  while(current !=NULL && !(current->free == FREE && current->size >= size)){ //continue down list until a free block of appropriate size is found
     *last=current;
     current=current->next;
   }
@@ -44,8 +44,8 @@ struct block *allocate_space(struct block *last, size_t size){
     return NULL;
   }
   
-  if(last != NULL){
-    last->next = new;
+  if(last != NULL){//should only be null on the first call to malloc
+    last->next = new; //add new block to list
   }
   new->size = size;
   new->next = NULL;
@@ -60,9 +60,9 @@ void *_malloc(size_t size){
     return NULL;
   }
   
-  if(head == NULL){
+  if(head == NULL){ //first call to malloc in program
     new = allocate_space(NULL,size);
-    if(new == NULL){
+    if(new == NULL){ //couldn't allocate space
       return NULL;
     }
     head = new;
@@ -70,7 +70,7 @@ void *_malloc(size_t size){
   else{
     struct block *last = head;
     new = find_free_block(&last, size);
-    if(new == NULL){
+    if(new == NULL){ //couldn't find any free blocks of appropriate size
       new = allocate_space(last,size);
       if(new==NULL){
         return NULL;
@@ -82,12 +82,14 @@ void *_malloc(size_t size){
   }
   return new+1; //leave space for a block struct
 }
+
 struct block *get_block(void *ptr){
   return (struct block *)ptr-1;
   
 }
 
 void _free(void *ptr){
+  //very simple free(), only marks a block as free (doesn't remove it from the pool)
   if(ptr == NULL){
     return;
   }
