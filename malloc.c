@@ -6,29 +6,29 @@
  * https://danluu.com/malloc-tutorial/ 
  */
 #include "tlpi_hdr.h"
+//need to create a metadata struct for each region
 
-//prototypes
+enum status { FREE, USED };
+typedef struct blk{
+  size_t size;
+  struct blk *next;
+  enum status free;
+} block;
+
 void *_malloc(size_t size);
 void _free(void *ptr);
-enum status { FREE, USED };
-struct block *find_free_block(struct block **last, size_t size);
-struct block *allocate_space(struct block *last, size_t size);
-struct block *get_block(void *ptr);
+block *find_free_block(block **last, size_t size);
+block *allocate_space(block *last, size_t size);
+block *get_block(void *ptr);
 
 
 
 //top of heap linked list
-void *head = NULL;
+block *head, *last = NULL;
 
-//need to create a metadata struct for each region
-struct block{
-  size_t size;
-  struct block *next;
-  enum status free;
-};
 
-struct block *find_free_block(struct block **last, size_t size){ //important to track the ptr to the last block as well as the one you return
-  struct block *current = head;
+block *find_free_block(block **last, size_t size){ //important to track the ptr to the last block as well as the one you return
+  block *current = head;
   while(current !=NULL && !(current->free == FREE && current->size >= size)){ //continue down list until a free block of appropriate size is found
     *last=current;
     current=current->next;
@@ -36,10 +36,10 @@ struct block *find_free_block(struct block **last, size_t size){ //important to 
   return current;
 }
 
-struct block *allocate_space(struct block *last, size_t size){
-  struct block *new;
+block *allocate_space(block *last, size_t size){
+  block *new;
   new = sbrk(0);
-  void *request = sbrk(size+sizeof(struct block)); //push break up enough for size and metadata
+  void *request = sbrk(size+sizeof(block)); //push break up enough for size and metadata
   if(request == (void *) -1){ //sbrk returns -1 if failed
     return NULL;
   }
@@ -54,7 +54,7 @@ struct block *allocate_space(struct block *last, size_t size){
 }
 
 void *_malloc(size_t size){
-  struct block *new;
+  block *new;
   
   if(size<=0){
     return NULL;
@@ -68,7 +68,7 @@ void *_malloc(size_t size){
     head = new;
   }
   else{
-    struct block *last = head;
+    block *last = head;
     new = find_free_block(&last, size);
     if(new == NULL){ //couldn't find any free blocks of appropriate size
       new = allocate_space(last,size);
@@ -83,8 +83,8 @@ void *_malloc(size_t size){
   return new+1; //leave space for a block struct
 }
 
-struct block *get_block(void *ptr){
-  return (struct block *)ptr-1;
+block *get_block(void *ptr){
+  return (block *)ptr-1;
   
 }
 
@@ -93,7 +93,7 @@ void _free(void *ptr){
   if(ptr == NULL){
     return;
   }
-  struct block *ptr_block = get_block(ptr);
+  block *ptr_block = get_block(ptr);
   ptr_block->free = FREE;
 }
 
