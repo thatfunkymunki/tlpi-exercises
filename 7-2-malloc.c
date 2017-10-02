@@ -1,4 +1,4 @@
-/* Exercise 7-4
+/* Exercise 7-2
  * (Advanced) Implement malloc() and free()
  *
  * Sources for reference: 
