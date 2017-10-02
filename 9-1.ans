@@ -14,4 +14,4 @@ d) setfsuid(2000);
   real=1000 effective=0 saved=0 file-system=2000
 
 e) setresuid(-1,2000,3000);
-  real=1000 effective=2000 saved=3000 file-system=0
+  real=1000 effective=2000 saved=3000 file-system=2000
