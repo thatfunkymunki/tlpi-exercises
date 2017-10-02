@@ -1,0 +1,6 @@
+Exercise 9-2
+Is a process with the following user IDs privileged? Explain your answer
+  real=0 effective=1000 saved=1000 file-system=1000
+
+This process appears to have at one point been privileged but has lost that by setting its euid to a user.
+It could regain its privileges by using syscalls to change it back.
