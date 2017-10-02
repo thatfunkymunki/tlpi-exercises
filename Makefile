@@ -1,15 +1,8 @@
 include ../Makefile.inc
 
-GEN_EXE = 
-
-LINUX_EXE = $(wildcard *.c)
-
-EXE = $(patsubst %.c,%,$(LINUX_EXE))
+EXE = $(patsubst %.c,%,$(wildcard *.c))
 
 all : ${EXE}
-
-allgen : ${GEN_EXE}
-
 
 clean : 
 	${RM} ${EXE} *.o
