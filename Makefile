@@ -2,21 +2,9 @@ include ../Makefile.inc
 
 GEN_EXE = 
 
-LINUX_EXE = test \
-						tee\
-						cp\
-						append\
-						atomic_append\
-						dup\
-						5-5\
-						readvwritev\
-						malloc\
-						6-2\
-						setunsetenv\
-						free_and_sbrk\
-						getpwnam
+LINUX_EXE = $(wildcard *.c)
 
-EXE = ${GEN_EXE} ${LINUX_EXE}
+EXE = $(patsubst %.c,%,$(LINUX_EXE))
 
 all : ${EXE}
 
