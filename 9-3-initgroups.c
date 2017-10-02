@@ -28,9 +28,10 @@ int _initgroups(const char *user, gid_t group){
    gid_t list[GROUPS_MAX];
    
    int ngroups = GROUPS_MAX;
-   int numgroups = getgrouplist(user, group, list, &ngroups);
-   
-   setgroups(numgroups, list);
+   getgrouplist(user, group, list, &ngroups);
+
+
+   setgroups(ngroups, list);   
    return 0;
 }
 void printgroups(){
@@ -53,7 +54,7 @@ int main(int argc, char *argv[]){
    printgroups();
 
    
-   _initgroups("munki", 1004);
+   _initgroups("debian", 1004);
    printgroups();
 
    initgroups("root", 0);
