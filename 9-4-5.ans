@@ -1,0 +1,69 @@
+Exercise 9-4
+real=X effective=Y saved=Y
+
+a. Suspend and resume he set-user-id identity (i.e., switch the effective user 
+   ID to the value of the real user ID and then back to the saved set-user-ID).
+b. Permanently drop the set-user-ID identity (i.e., ensure that the effective 
+   user ID and the saved set-user-ID are set to the value of the real user ID).
+
+
+ uid_t ruid, euid, suid;
+ getresuid(&ruid,&euid,&suid);
+ 
+ setuid() method:
+ a.
+ setuid(getuid());
+ setuid(euid);
+ b.
+ not possible with just setuid()
+ 
+ seteuid() method:
+ a.
+ seteuid(getuid());
+ seteuid(euid);
+ b.
+ not possible with just seteuid()
+ 
+ setreuid() method:
+ a.
+ setreuid(-1, getuid());
+ setreuid(-1, euid);
+ b. 
+ setreuid(getuid(), getuid());
+ 
+ setresuid() method:
+ a.
+ setresuid(-1, getuid(), -1);
+ setresuid(-1, euid, -1);
+ b.
+ setresuid(getuid(), getuid(), getuid());
+ 
+Exercise 9-5
+Repeat the previous exercise for a process executing a set-user-ID-root program,
+which has the following initial set of process credentials:
+   real=X effective=0 saved=0
+   
+setuid() method:
+a. not possible
+b. not possible
+
+seteuid() method:
+a.
+seteuid(getuid());
+seteuid(0);
+b.
+not possible with just seteuid()
+
+setreuid() method:
+a.
+setreuid(-1, getuid());
+setreuid(-1,0);
+b.
+setreuid(getuid(), getuid());
+
+setresuid() method:
+a.
+setresuid(-1,getuid(),-1);
+setresuid(-1,0,-1);
+b.
+setresuid(getuid(),getuid(),getuid());
