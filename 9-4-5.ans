@@ -66,4 +66,4 @@ a.
 setresuid(-1,getuid(),-1);
 setresuid(-1,0,-1);
 b.
-setresuid(getuid(),getuid(),getuid());
+setresuid(getuid(),getuid(),getuid());    
