@@ -1,0 +1,17 @@
+Exercise 10-1
+Assume a system where the value returned by the call sysconf(_SC_CLK_TCK) is 100.
+Assuming that the clock_t value returned by times() is a signed 32-bit integer,
+how long will it take before this value cycles so that it restarts at 0? Perform
+the same calculation for the CLOCKS_PER_SEC value returned by clock().
+
+
+INT_MAX = 2,147,483,647
+
+times() returns clock_t number of clock ticks
+100 ticks per second
+21474836.47 seconds or 0.6809625973 years to overflow clock_t
+
+CLOCKS_PER_SEC = 1,000,000,000
+
+clock() returns cpu time measured in ticks with 1,000,000 CLOCKS_PER_SEC
+2147.483647 seconds or 0.596523235 hours to overflow clock_t
