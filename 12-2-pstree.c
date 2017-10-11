@@ -15,11 +15,25 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <string.h>
+#define PROCESS_MAX 1024
+#define CHILDREN_MAX 256
 
-void usage(const char *name);
+typedef struct process{
+  pid_t pid;
+  pid_t ppid;
+  struct process *parent;
+  struct process *children[CHILDREN_MAX];
+} process_node; 
+
 int string_is_number(const char *string);
-int pidstatus(const char *path, uid_t uid);
 char *trimstring(char *str);
+process_node *create_node(const char *pid);
+
+process_node *node_list[PROCESS_MAX];
+int nodecount = 0;
+
+process_node *node_tree;
+
 
 int string_is_number(const char *string){
   while(*string){
@@ -39,50 +53,45 @@ char *trimstring(char *str){ //based on https://stackoverflow.com/questions/1226
   *(end+1)='\0';
   return str;
 }
-int pidstatus(const char *path, uid_t uid){
+process_node *create_node(const char *pid_s){
   char filename[256] = "/proc/";
   char inbuffer[256];
-  char name[256] = "\0";
-  char uid_s[256] ="\0";
-  sprintf(uid_s, "%d", uid);
-  
+  char ppid_s[256] = "\0";
+  process_node *newnode = NULL;
   
   FILE *statusfile;
-  strcat(filename,path);
+  strcat(filename,pid_s);
   strcat(filename,"/status");
   
   if ( (statusfile = fopen(filename, "r")) == NULL){
-    return 1;
+    return NULL;
   }
   
   //printf("%s\n",path);
   
-  int found = 0;
   while(fgets(inbuffer,sizeof(inbuffer),statusfile) != NULL){
     char *field = trimstring(strtok(inbuffer, ":"));
     char *val = strtok(trimstring(strtok(NULL, ":")), "\t"); //coerce the value into a single token (don't need all the different UIDs of a process for example)
     
-    if(strcmp(field, "Uid") == 0){
+    if(strcmp(field, "PPid") == 0){
      // printf("%s : %s\n", field, val);
-      if(strcmp(val, uid_s) == 0){
-        found = 1;  
-      }
-    }
-    if(strcmp(field, "Name") == 0){
-    //printf("%s : %s\n", field, val);
-      strcpy(name, val);
+      strcpy(ppid_s, val);
+      break;
     }
   }
   fclose(statusfile);
-  if(found == 1 && strcmp(name, "\0") != 0){
-    printf("UID: %s PID: %s Name: %s\n",uid_s, path, name);
+  //printf("Pid: %s PPid: %s\n", pid_s, ppid_s);
+  if(strcmp(ppid_s,"\0")!=0){
+    newnode= malloc(sizeof(process_node));
+    newnode->pid=atoi(pid_s);
+    newnode->ppid=atoi(ppid_s);
+    newnode->parent=NULL;
+    for(int i=0;i<CHILDREN_MAX;i++){
+      newnode->children[i]=NULL;
+    }
+    return newnode;
   }
-  
-  
-  
-  
-  //printf("%s\n",filename);
-  return 0;
+  return NULL;
 }
 
 int main(int argc, char** argv){
@@ -90,15 +99,7 @@ int main(int argc, char** argv){
   DIR *proc;
   struct dirent *dp;
   
-  uid_t uid;
-  if(argc!=2){
-    usage(argv[0]);
-  }
-  
-  if( (uid = userIdFromName(argv[1])) == -1){
-    errno= EINVAL;
-    errExit("invalid user");
-  }
+ 
   
   //printf("user %s id %d\n", argv[1],uid);
   
@@ -117,27 +118,33 @@ int main(int argc, char** argv){
         }
         
         //printf("%s\n", dp->d_name);
-        pidstatus(dp->d_name, uid);
+        process_node *newnode=create_node(dp->d_name);
+        if(newnode!=NULL){
+          node_list[nodecount]=newnode;
+          nodecount++;
+        }
       }
     }
-  } while(dp!=NULL);
-  
-  
-  
-  
-  
+  } while(dp!=NULL && nodecount < PROCESS_MAX);
   if(errno !=0){
     errExit("readdir");
   }
+  
+  
+  for(int i=0;i<nodecount;i++){
+    printf("pid: %d ppid: %d\n",node_list[i]->pid,node_list[i]->ppid);
+  }
+  //turn list into tree
+  
+  //print out tree
+  
+  
+  
+  
   if(closedir(proc) == -1){
     errExit("closedir");
   }
   
   
   return 0;
-}
-void usage(const char *name){
-  printf("%s <user>\n", name);
-  errno = EINVAL;
-  errExit("invalid usage");
 }
