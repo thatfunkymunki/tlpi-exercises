@@ -99,6 +99,10 @@ void find_parent(process_node *proc){
       return;
     }
   }
+  if(proc->parent == NULL){ //parent not found, set to 1
+    add_child(node_tree, proc);
+    treenodecount++;
+  }
 }
 void add_child(process_node *parent, process_node *child){
   parent->children[parent->childcount]=child;
@@ -180,11 +184,7 @@ int main(int argc, char** argv){
   
   DIR *proc;
   struct dirent *dp;
-  
- 
-  
-  //printf("user %s id %d\n", argv[1],uid);
-  
+
   proc = opendir("/proc/");
   if(proc == NULL){
     errExit("failed opening /proc/");
@@ -211,9 +211,6 @@ int main(int argc, char** argv){
   if(errno !=0){
     errExit("readdir");
   }
-  
-  
-  
   //turn list into tree
   
   generate_tree();
@@ -221,14 +218,9 @@ int main(int argc, char** argv){
   //print out tree
   //print_list();
   
-  //print_tree_flat();
-  
-  printf("node count: %d tree node count: %d\n", nodecount, treenodecount);
+  //printf("node count: %d tree node count: %d\n", nodecount, treenodecount);
   
   print_tree(node_tree);
-  
-  
-  
   
   if(closedir(proc) == -1){
     errExit("closedir");
