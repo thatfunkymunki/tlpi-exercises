@@ -16,10 +16,12 @@
 #include <string.h>
 #define PROCESS_MAX 1024
 #define CHILDREN_MAX 256
+#define NAME_LENGTH_MAX 64
 
 typedef struct process{
   pid_t pid;
   pid_t ppid;
+  char name[NAME_LENGTH_MAX];
   int childcount;
   struct process *parent;
   struct process *children[CHILDREN_MAX];
@@ -113,7 +115,7 @@ void print_tree(process_node *node){
     printf("--");
     parent=parent->parent;
   }
-  printf("%d\n",node->pid);
+  printf("%d: %s\n",node->pid, node->name);
   
   for(int i=0;i<node->childcount;i++){
     print_tree(node->children[i]);
@@ -131,6 +133,7 @@ void print_tree_flat(){
 process_node *create_node(const char *pid_s){
   char filename[256] = "/proc/";
   char inbuffer[256];
+  char name[NAME_LENGTH_MAX];
   char ppid_s[256] = "\0";
   process_node *newnode = NULL;
   
@@ -151,7 +154,9 @@ process_node *create_node(const char *pid_s){
     if(strcmp(field, "PPid") == 0){
      // printf("%s : %s\n", field, val);
       strcpy(ppid_s, val);
-      break;
+    }
+    if(strcmp(field,"Name") == 0){
+      strcpy(name,val);
     }
   }
   fclose(statusfile);
@@ -160,6 +165,7 @@ process_node *create_node(const char *pid_s){
     newnode= malloc(sizeof(process_node));
     newnode->pid=atoi(pid_s);
     newnode->ppid=atoi(ppid_s);
+    strcpy(newnode->name,name);
     newnode->parent=NULL;
     newnode->childcount=0;
     for(int i=0;i<CHILDREN_MAX;i++){
@@ -213,9 +219,9 @@ int main(int argc, char** argv){
   generate_tree();
   
   //print out tree
-  print_list();
+  //print_list();
   
-  print_tree_flat();
+  //print_tree_flat();
   
   printf("node count: %d tree node count: %d\n", nodecount, treenodecount);
   
