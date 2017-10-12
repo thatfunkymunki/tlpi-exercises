@@ -20,6 +20,7 @@
 typedef struct process{
   pid_t pid;
   pid_t ppid;
+  int childcount;
   struct process *parent;
   struct process *children[CHILDREN_MAX];
 } process_node; 
@@ -27,11 +28,18 @@ typedef struct process{
 int string_is_number(const char *string);
 char *trimstring(char *str);
 process_node *create_node(const char *pid);
+void generate_tree(void);
+void print_tree(process_node *tree);
+void print_list(void);
+void find_children(process_node *proc);
+void add_child(process_node *parent, process_node *child);
+
 
 process_node *node_list[PROCESS_MAX];
 int nodecount = 0;
 
 process_node *node_tree;
+int treenodecount = 0;
 
 
 int string_is_number(const char *string){
@@ -51,6 +59,53 @@ char *trimstring(char *str){ //based on https://stackoverflow.com/questions/1226
   while (end > str && isspace(*end)){ end--; }
   *(end+1)='\0';
   return str;
+}
+void print_list(){
+  for(int i=0;i<nodecount;i++){
+    printf("pid: %d ppid: %d\n",node_list[i]->pid,node_list[i]->ppid);
+  }
+}
+void generate_tree(){
+  //first find tree root aka init aka pid 1
+  for(int i=0;i<nodecount;i++){
+    if(node_list[i]->pid==1){
+      node_tree=node_list[i];
+      treenodecount++;
+      break;
+    }
+  }
+  //find children of init first
+  find_children(node_tree);
+  
+  //iterate through the rest of the tree
+ 
+}
+void find_children(process_node *proc){
+  for(int i=0;i<nodecount;i++){
+    if(node_list[i]->ppid == proc->pid){
+      add_child(proc,node_list[i]);
+      treenodecount++;
+      find_children(node_list[i]);
+    }
+  }
+}
+void add_child(process_node *parent, process_node *child){
+  parent->children[parent->childcount]=child;
+  parent->childcount++;
+  child->parent=parent;
+}
+void print_tree(process_node *node){
+  if(node==NULL){
+    printf("\n");
+    return;
+  }
+  printf("--");
+  printf("%d\n",node->pid);
+  for(int i=0;i<node->childcount;i++){
+    
+    print_tree(node->children[i]);
+  }
+  printf("--");
 }
 process_node *create_node(const char *pid_s){
   char filename[256] = "/proc/";
@@ -85,6 +140,7 @@ process_node *create_node(const char *pid_s){
     newnode->pid=atoi(pid_s);
     newnode->ppid=atoi(ppid_s);
     newnode->parent=NULL;
+    newnode->childcount=0;
     for(int i=0;i<CHILDREN_MAX;i++){
       newnode->children[i]=NULL;
     }
@@ -130,12 +186,15 @@ int main(int argc, char** argv){
   }
   
   
-  for(int i=0;i<nodecount;i++){
-    printf("pid: %d ppid: %d\n",node_list[i]->pid,node_list[i]->ppid);
-  }
+  
   //turn list into tree
   
+  generate_tree();
+  
   //print out tree
+  print_list();
+  
+  print_tree(node_tree);
   
   
   
