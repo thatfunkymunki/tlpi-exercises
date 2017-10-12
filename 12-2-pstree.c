@@ -104,7 +104,20 @@ void add_child(process_node *parent, process_node *child){
   child->parent=parent;
 }
 void print_tree(process_node *node){
+  if(node==NULL){
+    printf("\n");
+    return;
+  }
+  process_node *parent = node->parent;
+  while(parent!=NULL){
+    printf("--");
+    parent=parent->parent;
+  }
+  printf("%d\n",node->pid);
   
+  for(int i=0;i<node->childcount;i++){
+    print_tree(node->children[i]);
+  }
 }
 void print_tree_flat(){
   printf("flat tree print: \n");
