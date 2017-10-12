@@ -31,7 +31,9 @@ process_node *create_node(const char *pid);
 void generate_tree(void);
 void print_tree(process_node *tree);
 void print_list(void);
-void find_children(process_node *proc);
+void print_tree_flat(void);
+
+void find_parent(process_node *proc);
 void add_child(process_node *parent, process_node *child);
 
 
@@ -71,21 +73,28 @@ void generate_tree(){
     if(node_list[i]->pid==1){
       node_tree=node_list[i];
       treenodecount++;
-      break;
+    }
+    if(node_list[i]->pid==2){
+      add_child(node_tree,node_list[i]);
+      treenodecount++;
     }
   }
-  //find children of init first
-  find_children(node_tree);
-  
-  //iterate through the rest of the tree
- 
-}
-void find_children(process_node *proc){
+  //populate tree
   for(int i=0;i<nodecount;i++){
-    if(node_list[i]->ppid == proc->pid){
-      add_child(proc,node_list[i]);
+    find_parent(node_list[i]);
+  }
+}
+void find_parent(process_node *proc){
+  if(proc->pid==1 || proc->pid==2){
+    return;
+  }
+  for(int i=0;i<nodecount;i++){
+    if(node_list[i]->pid == proc->ppid){
+      add_child(node_list[i],proc);
       treenodecount++;
-      find_children(node_list[i]);
+      
+      
+      return;
     }
   }
 }
@@ -95,17 +104,16 @@ void add_child(process_node *parent, process_node *child){
   child->parent=parent;
 }
 void print_tree(process_node *node){
-  if(node==NULL){
-    printf("\n");
-    return;
+  
+}
+void print_tree_flat(){
+  printf("flat tree print: \n");
+  for(int i=0;i<nodecount;i++){
+    pid_t pid = node_list[i]->pid;
+    pid_t ppid = (node_list[i]->parent == NULL ? 0 : node_list[i]->parent->pid);
+    printf("pid: %d ppid: %d\n",pid, ppid);
   }
-  printf("--");
-  printf("%d\n",node->pid);
-  for(int i=0;i<node->childcount;i++){
-    
-    print_tree(node->children[i]);
-  }
-  printf("--");
+  
 }
 process_node *create_node(const char *pid_s){
   char filename[256] = "/proc/";
@@ -193,6 +201,10 @@ int main(int argc, char** argv){
   
   //print out tree
   print_list();
+  
+  print_tree_flat();
+  
+  printf("node count: %d tree node count: %d\n", nodecount, treenodecount);
   
   print_tree(node_tree);
   
