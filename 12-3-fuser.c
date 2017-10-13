@@ -13,12 +13,52 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <string.h>
- 
+
+void check_pid(char *pid_s);
+void usage(char *name);
+
+
+void check_pid(char *pid_s){
+  DIR *pid_dir;
+  struct dirent *dp;
+  char filename[256]= "/proc/";
+  char fdlnk[512];
+  char fdtarget[]
+  
+  strcat(filename,pid_s);
+  strcat(filename,"/fd");
+  pid_dir = opendir(filename);
+  if(pid_dir == NULL){
+    printf("could not check file descriptors of pid %s\n",pid_s);
+    return;
+  }
+  printf("checking %s\n",filename);
+
+  do{
+    errno=0;
+    dp=readdir(pid_dir);
+    if(dp!=NULL){
+      if(dp->d_type == DT_LNK){
+         printf("checking fd %s\n",dp->d_name);
+         sprintf(fdlnk, "%s/%s", filename, dp->d_name);
+         printf("path: %s\n",fdlnk);
+         
+      }
+     
+    }
+  }while(dp!=NULL);
+  
+  
+}
 
 int main(int argc, char** argv){
 
   DIR *proc;
   struct dirent *dp;
+  
+  if(argc!=2){
+    usage(argv[0]);
+  }
   
   proc = opendir("/proc/");
   if(proc == NULL){
@@ -33,6 +73,8 @@ int main(int argc, char** argv){
         if( !string_is_number(dp->d_name) ) { //only look through PID dirs
           continue;
         }
+        
+        check_pid(dp->d_name);
       }
     }
   } while(dp!=NULL);
@@ -41,4 +83,9 @@ int main(int argc, char** argv){
   }
   
   return 0;
+}
+void usage(char *name){
+  printf("%s <path>\n", name);
+  errno = EINVAL;
+  errExit("invalid usage");
 }

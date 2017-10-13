@@ -1,3 +1,4 @@
+//THERE MUST BE A SYMLINK TO THIS FILE IN tlpi-dist/lib
 #include "libprochelper.h"
 #include <string.h>
 #include <ctype.h>
