@@ -10,7 +10,6 @@
  */
  
 #include "tlpi_hdr.h"
-#include "ugid_functions.h"   /* userNameFromId() & groupNameFromId() */
 #include <dirent.h>
 #include <ctype.h>
 #include <string.h>
@@ -70,12 +69,13 @@ void print_list(){
   }
 }
 void generate_tree(){
-  //first find tree root aka init aka pid 1
+  //first find tree root aka systemd aka pid 1
   for(int i=0;i<nodecount;i++){
     if(node_list[i]->pid==1){
       node_tree=node_list[i];
       treenodecount++;
     }
+    //pid 2 kthreadd is also a special case let's just put it under pid 1 even though its status says ppid 0
     if(node_list[i]->pid==2){
       add_child(node_tree,node_list[i]);
       treenodecount++;
