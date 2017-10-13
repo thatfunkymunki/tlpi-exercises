@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <string.h>
+#include "libhelper.h"
 #define PROCESS_MAX 1024
 #define CHILDREN_MAX 256
 #define NAME_LENGTH_MAX 64
@@ -26,8 +27,7 @@ typedef struct process{
   struct process *children[CHILDREN_MAX];
 } process_node; 
 
-int string_is_number(const char *string);
-char *trimstring(char *str);
+
 process_node *create_node(const char *pid);
 void generate_tree(void);
 void print_tree(process_node *tree);
@@ -45,24 +45,7 @@ process_node *node_tree;
 int treenodecount = 0;
 
 
-int string_is_number(const char *string){
-  while(*string){
-    if(isdigit(*string++) == 0) return 0;
-  }
-  return 1;
-}
-char *trimstring(char *str){ //based on https://stackoverflow.com/questions/122616/how-do-i-trim-leading-trailing-whitespace-in-a-standard-way
-  char *end;
-  //get rid of leading whitespace
-  while(isspace(*str)){ str++; }
-  if(*str=='\0'){ //all spaces
-    return str;
-  }
-  end = str + strlen(str) -1;
-  while (end > str && isspace(*end)){ end--; }
-  *(end+1)='\0';
-  return str;
-}
+
 void print_list(){
   for(int i=0;i<nodecount;i++){
     printf("pid: %d ppid: %d\n",node_list[i]->pid,node_list[i]->ppid);

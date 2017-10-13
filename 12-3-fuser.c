@@ -8,7 +8,44 @@
  */
  
  
+#include "tlpi_hdr.h"
+#include "libhelper.h"
+#include <dirent.h>
+#include <ctype.h>
+#include <string.h>
+ 
 
 int main(int argc, char** argv){
+
+  /*DIR *proc;
+  struct dirent *dp;
+  
+  proc = opendir("/proc/");
+  if(proc == NULL){
+    errExit("failed opening /proc/");
+  }
+  do{
+    errno=0;
+    dp = readdir(proc);
+    if(dp!=NULL){
+      
+      if(dp->d_type == DT_DIR || dp->d_type == DT_LNK){ //walk all dirs and symlinks
+        if( string_is_number(dp->d_name) == 0) { //only look through PID dirs
+          continue;
+        }
+        
+        //printf("%s\n", dp->d_name);
+        process_node *newnode=create_node(dp->d_name);
+        if(newnode!=NULL){
+          node_list[nodecount]=newnode;
+          nodecount++;
+        }
+      }
+    }
+  } while(dp!=NULL && nodecount < PROCESS_MAX);
+  if(errno !=0){
+    errExit("readdir");
+  }
+  */
   return 0;
 }
