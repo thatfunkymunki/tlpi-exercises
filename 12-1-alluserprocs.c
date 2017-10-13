@@ -12,33 +12,15 @@
  
 #include "tlpi_hdr.h"
 #include "ugid_functions.h"   /* userNameFromId() & groupNameFromId() */
+#include "libprochelper.h"
 #include <dirent.h>
 #include <ctype.h>
 #include <string.h>
 
 void usage(const char *name);
-int string_is_number(const char *string);
 int pidstatus(const char *path, uid_t uid);
-char *trimstring(char *str);
 
-int string_is_number(const char *string){
-  while(*string){
-    if(isdigit(*string++) == 0) return 0;
-  }
-  return 1;
-}
-char *trimstring(char *str){ //based on https://stackoverflow.com/questions/122616/how-do-i-trim-leading-trailing-whitespace-in-a-standard-way
-  char *end;
-  //get rid of leading whitespace
-  while(isspace(*str)){ str++; }
-  if(*str=='\0'){ //all spaces
-    return str;
-  }
-  end = str + strlen(str) -1;
-  while (end > str && isspace(*end)){ end--; }
-  *(end+1)='\0';
-  return str;
-}
+
 int pidstatus(const char *path, uid_t uid){
   char filename[256] = "/proc/";
   char inbuffer[256];
@@ -112,7 +94,7 @@ int main(int argc, char** argv){
     if(dp!=NULL){
       
       if(dp->d_type == DT_DIR || dp->d_type == DT_LNK){ //walk all dirs and symlinks
-        if( string_is_number(dp->d_name) == 0) { //only look through PID dirs
+        if( !string_is_number(dp->d_name) ) { //only look through PID dirs
           continue;
         }
         

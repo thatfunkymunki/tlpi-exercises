@@ -13,7 +13,7 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <string.h>
-#include "libhelper.h"
+#include "libprochelper.h"
 #define PROCESS_MAX 1024
 #define CHILDREN_MAX 256
 #define NAME_LENGTH_MAX 64
@@ -178,7 +178,7 @@ int main(int argc, char** argv){
     if(dp!=NULL){
       
       if(dp->d_type == DT_DIR || dp->d_type == DT_LNK){ //walk all dirs and symlinks
-        if( string_is_number(dp->d_name) == 0) { //only look through PID dirs
+        if( !string_is_number(dp->d_name) ) { //only look through PID dirs
           continue;
         }
         
