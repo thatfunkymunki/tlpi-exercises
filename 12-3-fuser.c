@@ -14,34 +14,45 @@
 #include <ctype.h>
 #include <string.h>
 
-void check_pid(char *pid_s);
-void usage(char *name);
+void check_pid(const char *pid_s, const char *file);
+void usage(const char *name);
 
 
-void check_pid(char *pid_s){
+void check_pid(const char *pid_s, const char *file){
   DIR *pid_dir;
   struct dirent *dp;
   char filename[256]= "/proc/";
   char fdlnk[512];
-  char fdtarget[]
+  char fdtarget[512];
+  ssize_t tgtlength=0;
   
   strcat(filename,pid_s);
   strcat(filename,"/fd");
   pid_dir = opendir(filename);
   if(pid_dir == NULL){
-    printf("could not check file descriptors of pid %s\n",pid_s);
+    //printf("could not check file descriptors of pid %s\n",pid_s);
     return;
   }
-  printf("checking %s\n",filename);
+  //printf("checking %s\n",filename);
 
   do{
     errno=0;
     dp=readdir(pid_dir);
     if(dp!=NULL){
       if(dp->d_type == DT_LNK){
-         printf("checking fd %s\n",dp->d_name);
+         //printf("checking fd %s\n",dp->d_name);
          sprintf(fdlnk, "%s/%s", filename, dp->d_name);
-         printf("path: %s\n",fdlnk);
+         //printf("path: %s\n",fdlnk);
+         
+         if((tgtlength = readlink(fdlnk,fdtarget,512))==-1){
+         //  printf("could not check link target %s\n",fdlnk);
+           continue;
+         }
+         fdtarget[tgtlength]='\0';
+         //printf("%s -> %s\n",fdlnk,fdtarget);
+         if(strcmp(fdtarget, file)==0){
+           printf("Pid %s is using %s\n", pid_s, file);
+         }
          
       }
      
@@ -74,7 +85,7 @@ int main(int argc, char** argv){
           continue;
         }
         
-        check_pid(dp->d_name);
+        check_pid(dp->d_name, argv[1]);
       }
     }
   } while(dp!=NULL);
@@ -84,7 +95,7 @@ int main(int argc, char** argv){
   
   return 0;
 }
-void usage(char *name){
+void usage(const char *name){
   printf("%s <path>\n", name);
   errno = EINVAL;
   errExit("invalid usage");
