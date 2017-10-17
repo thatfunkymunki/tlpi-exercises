@@ -1,0 +1,107 @@
+Exercise 13-1
+  $ fallocate -l 100M file100
+  $ fallocate -l 10M file10
+
+a. Experiment with different file and buffer sizes. You can set the buffer size
+   using the -DBUF_SIZE=nbytes option when compiling the program  
+  
+  BUF_SIZE=10
+  $ time ./copy file10 file10-1
+    real    0m1.326s
+    user    0m0.072s
+    sys     0m1.161s
+    
+  $ time ./copy file100 file100-1
+    real    0m14.030s
+    user    0m0.688s
+    sys     0m10.893s
+    
+  BUF_SIZE=1024
+  $ time ./copy file10 file10-1
+    real    0m0.033s
+    user    0m0.001s
+    sys     0m0.032s
+    
+  $ time ./copy file100 file100-1
+    real    0m1.640s
+    user    0m0.009s
+    sys     0m1.044s
+    
+  BUF_SIZE=1048576
+  $ time ./copy file10 file10-1
+    real    0m0.038s
+    user    0m0.001s
+    sys     0m0.035s
+
+  $ time ./copy file100 file100-1
+    real    0m0.331s
+    user    0m0.000s
+    sys     0m0.229s
+    
+b. Modify the open() system call to include the O_SYNC flag. How much difference
+   does this make to the speed for various buffer sizes?
+      
+  -With smaller buffers, it becomes completely unusably slow. With larger buffers, it's still slower but more usable
+  With an extremely large buffer, there is essentially no difference.
+      
+   
+  BUF_SIZE=10
+  $ time ./copy file10 file10-1
+    real    55m59.456s
+    user    0m2.250s
+    sys     0m52.675s
+    
+  didn't run for 100mb i don't have a spare 10 hours
+  
+  BUF_SIZE=1024
+  $ time ./copy file10 file10-1
+    real    0m30.852s
+    user    0m0.043s
+    sys     0m0.596s
+    
+  $ time ./copy file100 file100-1
+    real    5m9.965s
+    user    0m0.295s
+    sys     0m6.414s
+    
+  BUF_SIZE=1048576
+  $ time ./copy file10 file10-1
+    real    0m0.140s
+    user    0m0.000s
+    sys     0m0.034s
+  
+  $ time ./copy file100 file100-1
+    real    0m1.230s
+    user    0m0.001s
+    sys     0m0.318s
+    
+c. no other file systems available on this system unfortunately.
+
+
+Exercise 13-2
+results are extremely similar to the previous program.
+
+Exercise 13-3
+What is the effect of the following statements?
+  fflush(fp);
+  fsync(fileno(fp));
+  
+    fflush() flushes the file stream buffer and forces a write() syscall using the
+    current data in the stream buffer.
+    
+    fsync() pushes the kernel buffer cache to disk by initiating a write to disk using
+    the data in the buffer cache. This may not include data in the stdio buffer that 
+    has not made its way into the write() cache.
+    
+Exercise 13-4
+Explain why the output of the following code differs depending on whether standard 
+output is redirected to a terminal or to a disk file.
+
+  printf("If I had more time, \n");
+  write(STDOUT_FILENO, "I would have written you a shorter letter.\n", 43);
+  
+    printf() and other stdio functions will wait for the user-space buffer to be
+    full before calling write() and therefore you need to use fflush() to make sure
+    you get everything out in the right order when mixing syscalls and stdio.
+    Additionally, the behavior of newlines in output may change based on libc version
+    and whether they have special cases for stdout being redirected to a terminal
